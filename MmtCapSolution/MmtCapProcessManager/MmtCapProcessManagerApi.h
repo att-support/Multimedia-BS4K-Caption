@@ -171,7 +171,7 @@ MMTPROC_API int MmtCapManApiStart(int id);
 MMTPROC_API int MmtCapManApiStop(int id);
 
 //**************************************************
-// MMT
+// MMT s
 //**************************************************
 MMTPROC_API int MmtCapInputApiPushMmtData(int id, unsigned char *pointer, int size);
 
