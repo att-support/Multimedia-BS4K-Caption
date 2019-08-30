@@ -1,0 +1,27 @@
+LIBRARY	"MmtCapProcessManager"
+EXPORTS
+
+MmtCapManApiGetVersion								@1
+MmtCapManApiCreateInstance							@2
+MmtCapManApiDeleteInstance							@3
+MmtCapManApiSetParameterInit						@4
+MmtCapManApiSetParameterInputAdd					@5
+MmtCapManApiSetParameterInputClear					@6
+MmtCapManApiSetParameterOutput						@7
+
+//動作開始停止
+MmtCapManApiStart									@10
+//MmtCapManApiPause									@11
+MmtCapManApiStop									@12
+
+//MMT
+MmtCapInputApiPushMmtData							@20
+
+//NTP
+MmtCapManApiPushNtp									@41
+
+//通知登録
+MmtCapManApiAppendListener							@60
+MmtCapManApiRemoveListener							@61
+
+
