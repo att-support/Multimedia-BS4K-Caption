@@ -22,7 +22,7 @@
 #define MMTLIB_TYPE_CAPTION_BS_MAXCOUNT		12
 #define MPM_OUTPUT_PUTIMAGE 1
 #define MMT_PROCESS_INTERFACE_DEBUG		1
-#define MMTLIB_INITIAL_NAME	"MmtCapProcessManager.ini"
+#define MMTLIB_INITIAL_NAME	".\\MmtCapProcessManager.ini"
 #define MMTLIB_INITIAL_FILE	"C:\\WORK\\app\\MmtCapProcessManager.ini"
 #define MMTLIB_LOG_PATH		"C:\\WORK\\app\\Log\\MmtCap"
 #define MMT_API_DEBUG_LOG 0
