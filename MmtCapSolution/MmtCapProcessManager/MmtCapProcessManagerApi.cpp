@@ -46,6 +46,22 @@ int gObjectMmtCapInitialSettingFlag = 0;
 //**************************************************
 // function
 //**************************************************
+int ManFuncGetNewNumber(int type)
+{
+	MmtCapProcessManager *pObject = NULL;
+
+	if (type == MMTLIB_TYPE_CAPTION_BS) {
+
+		for (int i = 0; i < MMTLIB_TYPE_CAPTION_BS_MAXCOUNT; i++) {
+			if (gObjectMmtCaption[i] == NULL) {
+				return (i + 1);
+			}
+		}
+	}
+
+	return -1;
+}
+
 MmtCapProcessManager *ManFuncGetObject(int type, int number)
 {
 	MmtCapProcessManager *pObject = NULL;
@@ -228,6 +244,7 @@ int MmtCapManApiCreateInstance(
 	int ret = 0;
 	int iWaiteCount = 0;
 	int type = MMTLIB_TYPE_CAPTION_BS;
+	int iNumber = -1;
 
 	if (gObjectMmtCapCreateFlag) {
 		do {
@@ -287,6 +304,7 @@ int MmtCapManApiCreateInstance(
 				gIniMmtFilename = MMTLIB_INITIAL_FILE;
 				if (Path::IsExist(gIniMmtFilename) == 0) {
 					printf("[API],ERR,%d,MmtCapProcessManagerApi,TssCapProcessManager(),Ini File Error Path=%s", iInstanceId, gIniMmtFilename.c_str());
+					gObjectMmtCapCreateFlag = 0;
 					return MMTLIB_ERROR;
 				}
 			}
@@ -297,6 +315,7 @@ int MmtCapManApiCreateInstance(
 			ret = ManFuncInitialSetting(iInstanceId);
 			if (ret < 0) {
 				printf("[API],ERR,%d,MmtCapProcessManagerApi,TssCapProcessManager(),ManFuncInitialSetting()=%d", iInstanceId, ret);
+				gObjectMmtCapCreateFlag = 0;
 				return MMTLIB_ERROR;
 			}
 			if (gObjectMmtLogLevel) {
@@ -325,8 +344,20 @@ int MmtCapManApiCreateInstance(
 	}
 
 	if (type == MMTLIB_TYPE_CAPTION_BS) {
+		//gObjectMmtCaptionCount++;
+		//iCount = gObjectMmtCaptionCount;
+
+		iNumber = ManFuncGetNewNumber(type);
+		if (gObjectMmtLogLevel) {
+			APPLOG("[API],INF,%d,TssCapProcessManagerApi,ManFuncGetNewNumber(%d) Number=%d", iInstanceId, type, iNumber);
+		}
+		if (iNumber < 0) {
+			gObjectMmtCapCreateFlag = 0;
+			return MMTLIB_ERROR;
+		}
+
 		gObjectMmtCaptionCount++;
-		iCount = gObjectMmtCaptionCount;
+		iCount = iNumber;
 	}
 	else {
 		gObjectMmtCapCreateFlag = 0;
@@ -343,6 +374,10 @@ int MmtCapManApiCreateInstance(
 
 	//Version
 	MmtCapManApiGetVersion();
+	int version = MmtCapManApiGetVersion();
+	if (gObjectMmtLogLevel) {
+		APPLOG("[API],INF,%d,MmtCapProcessManagerApi,MmtCapManApiCreateInstance(),MmtCapManApiGetVersion()=%d", iInstanceId, version);
+	}
 
 #if MMT_PROCESS_INTERFACE_DEBUG
 	printf(" MmtCapManApiCreateInstance()             :Create(%d,%d) START\n", iCount, type);
@@ -450,6 +485,12 @@ int MmtCapManApiDeleteInstance(
 	int iNumber = 0;
 	int ret = 0;
 
+#if MMT_PROCESS_INTERFACE_DEBUG
+	if (gObjectMmtLogLevel) {
+		APPLOG("[API],INF,%d,MmtCapProcessManagerApi,MmtCapProcessManagerApi(),Release(%d,%d) START", id, iNumber, iType);
+	}
+#endif
+
 	pObject = ManFuncGetObjectFromId(id);
 	if (pObject == NULL) {
 		return MMTLIB_ERROR_INSTANCEID;
@@ -467,19 +508,28 @@ int MmtCapManApiDeleteInstance(
 #if MMT_PROCESS_MMCTRL
 	ret = pObject->Release(iNumber, iType);
 	if ( ret < 0) {
-		return ret;
+		if (gObjectMmtLogLevel) {
+			APPLOG("[API],ERR,%d,MmtCapProcessManagerApi,MmtCapManApiDeleteInstance(),Release(%d,%d) =%d", id, iNumber, iType, ret);
+		}
+		//return ret;
 	}
-	if (gObjectMmtCount == 0) {
-		pObject->ExitPreview();
-	}
-	if (pObject) {
-		delete pObject;
-		pObject = NULL;
-	}
+	//if (gObjectMmtCount == 0) {
+	//	pObject->ExitPreview();
+	//}
 #endif
 
+	if (gObjectMmtCaption[(iNumber - 1)]) {
+		delete gObjectMmtCaption[(iNumber - 1)];
+		gObjectMmtCaption[(iNumber - 1)] = NULL;
+	}
+
+	//if (pObject) {
+	//	delete pObject;
+	//	pObject = NULL;
+	//}
+
 #if MMT_PROCESS_INTERFACE_DEBUG
-	printf(" MmtCapManApiDeleteInstance()             :Release(%d,%d) END\n", iNumber, iType);
+	//printf(" MmtCapManApiDeleteInstance()             :Release(%d,%d) END\n", iNumber, iType);
 	if (gObjectMmtLogLevel) {
 		APPLOG("[API],INF,%d,MmtCapProcessManagerApi,MmtCapManApiDeleteInstance(),Release(%d,%d) END", id, iNumber, iType);
 	}
@@ -494,7 +544,7 @@ int MmtCapManApiDeleteInstance(
 	}
 
 #if MMT_PROCESS_INTERFACE_DEBUG
-	printf(" MmtCapManApiDeleteInstance()             :type=%d munber=%d id=%d(0x%08X) \n", iType, iNumber, id, (unsigned int)id);
+	//printf(" MmtCapManApiDeleteInstance()             :type=%d munber=%d id=%d(0x%08X) \n", iType, iNumber, id, (unsigned int)id);
 	if (gObjectMmtLogLevel) {
 		APPLOG("[API],INF,%d,MmtCapProcessManagerApi,MmtCapManApiDeleteInstance(),type=%d munber=%d id=%d(0x%08X)", id, iType, iNumber, id, (unsigned int)id);
 	}
